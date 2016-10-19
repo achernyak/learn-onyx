@@ -1,5 +1,6 @@
 (ns workshop.challenge-3-3
-  (:require [workshop.workshop-utils :as u]))
+  (:require [workshop.workshop-utils :as u]
+            [clojure.string :as str]))
 
 ;;; Workflows ;;;
 
@@ -22,7 +23,14 @@
        :onyx/doc "Reads segments from a core.async channel"}
 
       ;; <<< BEGIN FILL ME IN PART 1 >>>
-
+      {:onyx/name :transform-name
+       :onyx/fn :workshop.challenge-3-3/transform-name
+       :onyx/type :function
+       :param/prepend "~"
+       :param/append "?"
+       :onyx/params [:param/prepend :param/append]
+       :onyx/batch-size batch-size
+       :onyx/batch-timeout batch-timeout}
       ;; <<< END FILL ME IN PART 1 >>>
 
       {:onyx/name :write-segments
@@ -37,7 +45,8 @@
 ;;; Functions ;;;
 
 ;; <<< BEGIN FILL ME IN PART 2 >>>
-
+(defn transform-name [prepend append segment]
+  (update-in segment [:name] #(str prepend % append)))
 ;; <<< END FILL ME IN  PART 2 >>>
 
 ;;; Lifecycles ;;;
