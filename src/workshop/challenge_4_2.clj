@@ -48,6 +48,47 @@
 
 ;; <<< BEGIN FILL ME IN >>>
 
-(defn build-lifecycles [])
+(defn check-max [event lifecycle]
+  (println event)
+  {})
+
+(defn inject-reader-ch [event lifecycle]
+  {:core.async/chan (u/get-input-channel (:core.async/id lifecycle))})
+
+(defn inject-writer-ch [event lifecycle]
+  {:core.async/chan (u/get-output-channel (:core.async/id lifecycle))})
+
+(def check-max-lifecycle
+  {:lifecycle/before-task-start check-max})
+
+(def reader-lifecycle
+  {:lifecycle/before-task-start inject-reader-ch})
+
+(def writer-lifecycle
+  {:lifecycle/before-task-start inject-writer-ch})
+
+(defn build-lifecycles []
+  [
+   {:lifecycle/task :identity
+    :lifecycle/calls :workshop.challenge-4-2/check-max-lifecycle
+    :onyx/doc "Sets a max atom"}
+   
+   {:lifecycle/task :read-segments
+    :lifecycle/calls :workshop.challenge-4-2/reader-lifecycle
+    :core.async/id (java.util.UUID/randomUUID)
+    :onyx/doc "Injects the core.async reader channel"}
+
+   {:lifecycle/task :read-segments
+    :lifecycle/calls :onyx.plugin.core-async/reader-calls
+    :onyx/doc "core.async plugin base lifecycle"}
+
+   {:lifecycle/task :write-segments
+    :lifecycle/calls :workshop.challenge-4-2/writer-lifecycle
+    :core.async/id (java.util.UUID/randomUUID)
+    :onyx/doc "Injects the core.async writer channel"}
+
+   {:lifecycle/task :write-segments
+    :lifecycle/calls :onyx.plugin.core-async/writer-calls
+    :onyx/doc "core.async plugin base lifecycle"}])
 
 ;; <<< END FILL ME IN >>>
