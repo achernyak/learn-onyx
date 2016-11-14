@@ -49,6 +49,48 @@
 
 ;; <<< BEGIN FILL ME IN >>>
 
-(defn build-lifecycles [])
+(def sum (atom 0))
+
+(defn sum! [event lifecycle]
+  (println (str "Summation was: " @sum))
+  {:onyx.core/params [sum]})
+
+(defn inject-reader-ch [event lifecycle]
+  {:core.async/chan (u/get-input-channel (:core.async/id lifecycle))})
+
+(defn inject-writer-ch [event lifecycle]
+  {:core.async/chan (u/get-output-channel (:core.async/id lifecycle))})
+
+(def reader-lifecycle
+  {:lifecycle/before-task-start inject-reader-ch})
+
+(def writer-lifecycle
+  {:lifecycle/before-task-start inject-writer-ch})
+
+(def sum-lifecycle
+  {:lifecycle/before-batch sum!})
+
+(defn build-lifecycles []
+  [
+   {:lifecycle/task :identity
+    :lifecycle/calls :workshop.challenge-4-3/sum-lifecycle}
+   
+   {:lifecycle/task :read-segments
+    :lifecycle/calls :workshop.challenge-4-3/reader-lifecycle
+    :core.async/id (java.util.UUID/randomUUID)
+    :onyx/doc "Injects the core.async reader channel"}
+
+   {:lifecycle/task :read-segments
+    :lifecycle/calls :onyx.plugin.core-async/reader-calls
+    :onyx/doc "core.async plugin base lifecycle"}
+
+   {:lifecycle/task :write-segments
+    :lifecycle/calls :workshop.challenge-4-3/writer-lifecycle
+    :core.async/id (java.util.UUID/randomUUID)
+    :onyx/doc "Injects the core.async writer channel"}
+
+   {:lifecycle/task :write-segments
+    :lifecycle/calls :onyx.plugin.core-async/writer-calls
+    :onyx/doc "core.async plugin base lifecycle"}])
 
 ;; <<< END FILL ME IN >>>

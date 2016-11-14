@@ -56,6 +56,9 @@
         (reset! state n))))
   {})
 
+(defn test [event lifecycle]
+  (println (:onyx.core/params event)))
+
 (defn inject-reader-ch [event lifecycle]
   {:core.async/chan (u/get-input-channel (:core.async/id lifecycle))})
 
@@ -71,11 +74,17 @@
 (def writer-lifecycle
   {:lifecycle/before-task-start inject-writer-ch})
 
+(def test-lifecycle
+  {:lifecycle/before-batch test})
+
 (defn build-lifecycles []
   [
    {:lifecycle/task :identity
     :lifecycle/calls :workshop.challenge-4-2/check-max-lifecycle
     :onyx/doc "Sets a max atom"}
+
+   {:lifecycle/task :identity
+    :lifecycle/calls :workshop.challenge-4-2/test-lifecycle}
    
    {:lifecycle/task :read-segments
     :lifecycle/calls :workshop.challenge-4-2/reader-lifecycle
