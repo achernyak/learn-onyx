@@ -49,7 +49,11 @@
 ;; <<< BEGIN FILL ME IN >>>
 
 (defn check-max [event lifecycle]
-  (println event)
+  (doseq [segment (:onyx.core/batch event)]
+    (let [n (get-in segment [:message :n])]
+      (when (or (nil? @state)
+                (> n @state))
+        (reset! state n))))
   {})
 
 (defn inject-reader-ch [event lifecycle]
@@ -59,7 +63,7 @@
   {:core.async/chan (u/get-output-channel (:core.async/id lifecycle))})
 
 (def check-max-lifecycle
-  {:lifecycle/before-task-start check-max})
+  {:lifecycle/after-batch check-max})
 
 (def reader-lifecycle
   {:lifecycle/before-task-start inject-reader-ch})
