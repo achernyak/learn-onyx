@@ -81,6 +81,18 @@
 
 ;; <<< BEGIN FILL ME IN >>>
 
-(def flow-conditions)
+(defn exception-transform [event, segment, exception]
+  (assoc segment :error "Insufficient access level"))
+
+(defn catch-all [event old-segment new-segment all-new-segment]
+  true)
+
+(def flow-conditions
+  [{:flow/from :process-user
+    :flow/predicate :workshop.challenge-5-3/catch-all
+    :flow/thrown-exception? true
+    :flow/to [:write-segments]
+    :flow/short-circuit? true
+    :flow/post-transform :workshop.challenge-5-3/exception-transform}])
 
 ;; <<< END FILL ME IN >>>
